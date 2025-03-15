@@ -4,9 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seleccionar Temas</title>
-  <!-- Firebase -->
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, get, remove, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAclp6t7pf4H9cwZvLs2-8Y7S6w0pyS8zc",
+      authDomain: "sacaldos.firebaseapp.com",
+      projectId: "sacaldos",
+      storageBucket: "sacaldos.firebasestorage.app",
+      messagingSenderId: "130196984879",
+      appId: "1:130196984879:web:967debe0ab4fb74cc2e2da",
+      measurementId: "G-PLWFH0J4HC"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const guardarBtn = document.getElementById('guardar');
+      const eliminarBtn = document.getElementById('eliminar');
+      const temasCheckboxes = document.querySelectorAll('.tema');
+      const listaTemas = document.getElementById('lista-temas');
+
+      // Guardar temas seleccionados
+      guardarBtn.addEventListener('click', () => {
+        const temasSeleccionados = [];
+        temasCheckboxes.forEach(checkbox => {
+          if (checkbox.checked) {
+            temasSeleccionados.push(checkbox.value);
+          }
+        });
+        set(ref(db, 'temas'), temasSeleccionados)
+          .then(() => {
+            alert('Temas guardados en Firebase');
+            window.location.reload();
+          })
+          .catch((error) => console.error('Error al guardar en Firebase:', error));
+      });
+
+      // Cargar temas al cargar la página
+      get(child(ref(db), 'temas')).then((snapshot) => {
+        if (snapshot.exists()) {
+          const temas = snapshot.val();
+          temas.forEach(tema => {
+            const li = document.createElement('li');
+            li.textContent = tema;
+            listaTemas.appendChild(li);
+          });
+        }
+      }).catch((error) => console.error('Error al cargar temas:', error));
+
+      // Eliminar todos los temas
+      eliminarBtn.addEventListener('click', () => {
+        remove(ref(db, 'temas'))
+          .then(() => {
+            alert('Temas eliminados');
+            window.location.reload();
+          })
+          .catch((error) => console.error('Error al eliminar:', error));
+      });
+    });
+  </script>
 </head>
 <body>
   <h1>Seleccionar Temas</h1>
@@ -16,72 +75,9 @@
   <label><input type="checkbox" class="tema" value="FOPA"> FOPA</label><br>
   <label><input type="checkbox" class="tema" value="MTV"> MTV</label><br>
   <button id="guardar">Guardar Temas</button>
+  <button id="eliminar">Eliminar Todo</button>
 
   <h1>Temas Seleccionados</h1>
   <ul id="lista-temas"></ul>
-
-  <script type="module">
-    // Configuración de Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAclp6t7pf4H9cwZvLs2-8Y7S6w0pyS8zc",
-      authDomain: "sacaldos.firebaseapp.com",
-      databaseURL: "https://sacaldos-default-rtdb.firebaseio.com/",
-      projectId: "sacaldos",
-      storageBucket: "sacaldos.firebasestorage.app",
-      messagingSenderId: "130196984879",
-      appId: "1:130196984879:web:967debe0ab4fb74cc2e2da",
-      measurementId: "G-PLWFH0J4HC"
-    };
-
-    // Inicializar Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const guardarBtn = document.getElementById('guardar');
-    const temasCheckboxes = document.querySelectorAll('.tema');
-    const listaTemas = document.getElementById('lista-temas');
-
-    // Guardar temas seleccionados
-    guardarBtn.addEventListener('click', () => {
-      const temasSeleccionados = Array.from(temasCheckboxes)
-        .filter(checkbox => checkbox.checked)
-        .map(checkbox => checkbox.value);
-
-      if (temasSeleccionados.length === 0) {
-        alert('Selecciona al menos un tema.');
-        return;
-      }
-
-      set(ref(db, 'temas'), temasSeleccionados)
-        .then(() => {
-          alert('Temas guardados con éxito');
-          cargarTemas();
-        })
-        .catch((error) => console.error('Error al guardar en Firebase:', error));
-    });
-
-    // Cargar temas desde Firebase
-    function cargarTemas() {
-      get(child(ref(db), 'temas')).then((snapshot) => {
-        listaTemas.innerHTML = '';
-        if (snapshot.exists()) {
-          const temas = snapshot.val();
-          temas.forEach(tema => {
-            const li = document.createElement('li');
-            li.textContent = tema;
-            listaTemas.appendChild(li);
-          });
-        } else {
-          listaTemas.innerHTML = '<li>No hay temas seleccionados.</li>';
-        }
-      }).catch((error) => console.error('Error al cargar temas:', error));
-    }
-
-    // Cargar temas al iniciar
-    cargarTemas();
-  </script>
 </body>
 </html>
