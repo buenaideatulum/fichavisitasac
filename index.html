@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>	Formato de Desempeño y Diagnóstico S.A.C.</title>
+    <title>Formato de Desempeño y Diagnóstico S.A.C.</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -162,7 +162,6 @@
         .title-space {
             height: auto;
             position: relative;
-            
         }
 
         .title-image {
@@ -170,7 +169,6 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-        
         }
 
         .watermark {
@@ -205,155 +203,12 @@
         </div>
     </div>
 
-    <div id="exportContainer" style="display: none;">
-        <div class="export-version">
-            <div class="title-space">
-                <img src="titulo.png" alt="Título" class="title-image" id="titleImage">
-            </div>
-            <div class="sections-container">
-                <div class="section">
-                    <h2>ANTES</h2>
-                    <div id="export-before-topics"></div>
-                </div>
-                <div class="section">
-                    <h2>DESPUÉS</h2>
-                    <div id="export-after-topics"></div>
-                </div>
-            </div>
-         <div class="watermark" style="color: white;">
-    Recuerda estudiar 2 minutos, un día sí y un día no. <br> Nos vemos la próxima semana para cambiar el color rojo 🔴 a verde 🟢
-</div>
+    <div class="watermark" style="color: white;">
+        Recuerda estudiar 2 minutos, un día sí y un día no. <br> Nos vemos la próxima semana para cambiar el color rojo 🔴 a verde 🟢
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        const topics = [
-            "¿QUÉ ES EL GELATO?",
-            "¿CUÁNTOS TIPOS DE GELATOS TENEMOS?",
-            "¿QUÉ ES LA REGLA DE LOS 2 SEGUNDOS?",
-            "¿CUÁLES SON LOS 3 PUNTOS ESTRATÉGICOS DEL MTV?",
-            "¿QUÉ SIGNIFICA FOPA?",
-            "¿QUÉ SON LOS GELATOS KETO?",
-            "5 PASOS DE SERVICIO EN VITRINA",
-            "5 PASOS DE SERVICIO EN MESA",
-            "5 PASOS DE SERVICIO EN CAJA",
-            "3 PILARES DE ALDO`S"
-        ];
-
-        let selectedColor = '#2196F3';
-        const highlights = {};
-
-        function createTopicButtons() {
-            const beforeContainer = document.getElementById('before-topics');
-            const afterContainer = document.getElementById('after-topics');
-            const exportBeforeContainer = document.getElementById('export-before-topics');
-            const exportAfterContainer = document.getElementById('export-after-topics');
-
-            topics.forEach(topic => {
-                const beforeButton = document.createElement('button');
-                beforeButton.className = 'topic-btn';
-                beforeButton.textContent = topic;
-                beforeButton.onclick = () => highlightTopic('before-' + topic);
-                beforeContainer.appendChild(beforeButton);
-
-                const afterButton = document.createElement('button');
-                afterButton.className = 'topic-btn';
-                afterButton.textContent = topic;
-                afterButton.onclick = () => highlightTopic('after-' + topic);
-                afterContainer.appendChild(afterButton);
-
-                const exportBeforeButton = document.createElement('button');
-                exportBeforeButton.className = 'topic-btn';
-                exportBeforeButton.textContent = topic;
-                exportBeforeContainer.appendChild(exportBeforeButton);
-
-                const exportAfterButton = document.createElement('button');
-                exportAfterButton.className = 'topic-btn';
-                exportAfterButton.textContent = topic;
-                exportAfterContainer.appendChild(exportAfterButton);
-            });
-        }
-
-        function selectColor(color) {
-            selectedColor = color;
-            document.querySelectorAll('.color-btn').forEach(btn => {
-                btn.classList.remove('selected');
-                if (btn.style.backgroundColor === color) {
-                    btn.classList.add('selected');
-                }
-            });
-        }
-
-        function highlightTopic(topicId) {
-            highlights[topicId] = selectedColor;
-            updateHighlights();
-        }
-
-        function updateHighlights() {
-            const updateButtonStyle = (btn, container, topic) => {
-                const topicId = (container.includes('before') ? 'before-' : 'after-') + topic;
-                if (highlights[topicId]) {
-                    btn.style.borderLeft = `4px solid ${highlights[topicId]}`;
-                    btn.style.backgroundColor = `${highlights[topicId]}15`;
-                    btn.style.paddingLeft = '20px';
-                } else {
-                    btn.style.borderLeft = 'none';
-                    btn.style.backgroundColor = 'white';
-                    btn.style.paddingLeft = '15px';
-                }
-            };
-
-            ['before-topics', 'after-topics', 'export-before-topics', 'export-after-topics'].forEach(containerId => {
-                const container = document.getElementById(containerId);
-                container.querySelectorAll('.topic-btn').forEach(btn => {
-                    updateButtonStyle(btn, containerId, btn.textContent);
-                });
-            });
-        }
-
-        function resetHighlights() {
-            Object.keys(highlights).forEach(key => delete highlights[key]);
-            updateHighlights();
-        }
-
-        async function exportHighlights() {
-            const exportContainer = document.getElementById('exportContainer');
-            exportContainer.style.display = 'block';
-            updateHighlights();
-
-            try {
-                const titleImage = document.getElementById('titleImage');
-                await new Promise((resolve, reject) => {
-                    if (titleImage.complete) {
-                        resolve();
-                    } else {
-                        titleImage.onload = resolve;
-                        titleImage.onerror = reject;
-                    }
-                });
-
-                const canvas = await html2canvas(document.querySelector('.export-version'), {
-                    backgroundColor: 'white',
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    allowTaint: true
-                });
-
-                const image = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.download = 'guia-estudio.png';
-                link.href = image;
-                link.click();
-
-            } catch (error) {
-                console.error('Error al exportar:', error);
-                alert('Hubo un error al exportar la imagen. Por favor, inténtalo de nuevo.');
-            } finally {
-                exportContainer.style.display = 'none';
-            }
-        }
-
         createTopicButtons();
     </script>
 </body>
