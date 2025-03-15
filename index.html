@@ -29,10 +29,10 @@
 
       // Guardar temas seleccionados
       guardarBtn.addEventListener('click', () => {
-        const temasSeleccionados = [];
-        temasCheckboxes.forEach(checkbox => {
+        const temasSeleccionados = {};
+        temasCheckboxes.forEach((checkbox, index) => {
           if (checkbox.checked) {
-            temasSeleccionados.push(checkbox.value);
+            temasSeleccionados[index + 1] = { titulo: checkbox.value };
           }
         });
         set(ref(db, 'temas'), temasSeleccionados)
@@ -47,9 +47,10 @@
       get(child(ref(db), 'temas')).then((snapshot) => {
         if (snapshot.exists()) {
           const temas = snapshot.val();
-          temas.forEach(tema => {
+          listaTemas.innerHTML = ''; // Limpiar la lista antes de cargar los temas
+          Object.values(temas).forEach(tema => {
             const li = document.createElement('li');
-            li.textContent = tema;
+            li.textContent = tema.titulo;
             listaTemas.appendChild(li);
           });
         }
